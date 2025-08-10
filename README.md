@@ -8,7 +8,7 @@ python setup.py bdist_wheel
 %pip install /lakehouse/default/Files/<Replace with your Location>/shared_utils-version-py3-none-any.whl 
 
 ## Example
-from shared_utils.datalake_utils import get_delta_table_path
+from shared_utils.datalake_utils import *
 get_delta_table_path("schema","table_name")
 
 ## Functions

@@ -4,6 +4,7 @@ from datetime import datetime
 import pytz
 from loguru import logger
 import uuid
+import notebookutils
 
 def get_time():
     ist = pytz.timezone('Asia/Kolkata')
@@ -72,6 +73,16 @@ def get_delta_table_path(schema,table_name):
     return table_path
 
 def get_lakehouse_files(folder_path="/lakehouse/default/Files/", pattern=None):
+    """
+    Returns a list of files in the specified folder path with the specified pattern.
+    
+    Parameters:
+    folder_path (str): the path to the folder to list files from
+    pattern (str): the pattern to match against file names
+    
+    Returns:
+    list: a list of file paths that match the pattern
+    """
     files = notebookutils.fs.ls(folder_path)
     file_list = []
     for file_info in files:
