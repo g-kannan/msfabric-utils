@@ -27,7 +27,7 @@ def get_duckdb_conn():
     conn.sql("SET TimeZone = 'Asia/Kolkata';")
     return conn
 
-def read_lakehouse_data(duckdb_conn,data_format,file_path):
+def read_lakehouse_files(duckdb_conn,data_format,file_path):
     """
     Reads data from a lakehouse file and returns it as a duckdb table with the two extra columns LOAD_TS and UPDATE_TS.
     
