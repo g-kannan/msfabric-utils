@@ -90,3 +90,49 @@ def get_lakehouse_files(folder_path="/lakehouse/default/Files/", pattern=None):
             if pattern is None or pattern in file_info.name:
                 file_list.append(file_info.path)
     return file_list
+
+def write_delta_table(arrow_df,schema,table_name,mode="append"):
+    """
+    Writes data to a delta table in the specified schema and table name.
+    
+    Parameters:
+    arrow_df (pyarrow.Table): the data to write to the delta table
+    schema (str): the schema of the delta table
+    table_name (str): the name of the delta table
+    mode (str): the mode to use when writing the data, either 'append' or 'overwrite'
+    
+    Returns:
+    str: a message indicating the result of the write operation
+    """
+    table_path = get_delta_table_path(schema,table_name)
+    storage_options = {"bearer_token": notebookutils.credentials.getToken("storage"), "use_fabric_endpoint": "true"}
+    logger.info(f"Write Mode: {mode}, Using table path:{table_path}")
+    try:
+        write_deltalake(table_path, arrow_df, mode=mode, engine='rust', storage_options=storage_options)
+    except Exception as e:
+        logger.exception(
+            f"Unexpected error appending data to Delta table: {e}",
+            extra={"path": table_path, "schema": schema, "table": table_name}
+        )
+        return f"Error '{e}' occured during write"
+
+def create_view_lakehouse_files(duckdb_conn,data_format,file_path):
+    """
+    Creates views for a lakehouse file with summary
+    
+    Parameters:
+    duckdb_conn (duckdb.Connection): an open connection to a duckdb database
+    data_format (str): the format of the file, either 'csv' or 'xlsx'
+    file_path (str): the path to the file to create views for
+    
+    Returns:
+    str: a message indicating the result of the view creation
+    """
+    if data_format == "csv":
+        duckdb_conn.sql(f"create or replace view vw_csv as select *,current_timestamp as LOAD_TS,current_timestamp as UPDATE_TS from read_csv('{file_path}',filename=True)")
+        duckdb_conn.sql("create or replace view vw_csv_summary as SELECT * FROM (SUMMARIZE vw_csv);")
+        return "View vw_csv & vw_csv_summary created"
+    elif data_format == "xlsx":
+        duckdb_conn.sql(f"create or replace view vw_xlsx as select *,'{file_path}' as filename,current_timestamp as LOAD_TS,current_timestamp as UPDATE_TS from read_xlsx('{file_path}',all_varchar=True)")
+        duckdb_conn.sql("create or replace view vw_xlsx_summary as SELECT * FROM (SUMMARIZE vw_xlsx);")
+        return "View vw_xlsx & vw_xlsx_summary created"
