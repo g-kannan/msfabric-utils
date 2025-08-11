@@ -86,7 +86,7 @@ def get_lakehouse_files(folder_path="/lakehouse/default/Files/", pattern=None):
     files = notebookutils.fs.ls(folder_path)
     file_list = []
     for file_info in files:
-        if file_info.name.endswith((".csv", ".xlsx")):
+        if file_info.name.lower().endswith((".csv", ".xlsx")):
             if pattern is None or pattern in file_info.name:
                 file_list.append(file_info.path)
     return file_list
