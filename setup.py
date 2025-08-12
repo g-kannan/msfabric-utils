@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='shared-utils',
-    version='0.1.5',
+    version='0.1.6',
     description='Shared utility functions for MS Fabric',
     packages=find_packages(),
     install_requires=[

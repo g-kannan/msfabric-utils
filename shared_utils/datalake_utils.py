@@ -116,7 +116,7 @@ def write_delta_table(arrow_df,schema,table_name,mode="append"):
         )
         return f"Error '{e}' occured during write"
 
-def create_view_lakehouse_files(duckdb_conn,data_format,file_path):
+def create_view_lakehouse_files(duckdb_conn,data_format,file_path,all_varchar=False):
     """
     Creates views for a lakehouse file with summary
     
@@ -124,6 +124,7 @@ def create_view_lakehouse_files(duckdb_conn,data_format,file_path):
     duckdb_conn (duckdb.Connection): an open connection to a duckdb database
     data_format (str): the format of the file, either 'csv' or 'xlsx'
     file_path (str): the path to the file to create views for
+    all_varchar (bool): whether to read the file as all varchar
     
     Returns:
     str: a message indicating the result of the view creation
@@ -133,6 +134,6 @@ def create_view_lakehouse_files(duckdb_conn,data_format,file_path):
         duckdb_conn.sql("create or replace view vw_csv_summary as SELECT * FROM (SUMMARIZE vw_csv);")
         return "View vw_csv & vw_csv_summary created"
     elif data_format == "xlsx":
-        duckdb_conn.sql(f"create or replace view vw_xlsx as select *,'{file_path}' as filename,current_timestamp as LOAD_TS,current_timestamp as UPDATE_TS from read_xlsx('{file_path}',all_varchar=True)")
+        duckdb_conn.sql(f"create or replace view vw_xlsx as select *,'{file_path}' as filename,current_timestamp as LOAD_TS,current_timestamp as UPDATE_TS from read_xlsx('{file_path}',all_varchar={all_varchar})")
         duckdb_conn.sql("create or replace view vw_xlsx_summary as SELECT * FROM (SUMMARIZE vw_xlsx);")
         return "View vw_xlsx & vw_xlsx_summary created"
