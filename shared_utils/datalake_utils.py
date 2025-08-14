@@ -5,6 +5,7 @@ import pytz
 from loguru import logger
 import uuid
 import notebookutils
+import polars as pl
 
 def get_time():
     ist = pytz.timezone('Asia/Kolkata')
@@ -141,3 +142,17 @@ def create_view_lakehouse_files(duckdb_conn,data_format,file_path,all_varchar=Fa
             duckdb_conn.sql(f"create or replace view vw_xlsx as select *,'{file_path}' as filename,current_timestamp as LOAD_TS,current_timestamp as UPDATE_TS from read_xlsx('{file_path}',all_varchar={all_varchar})")
         duckdb_conn.sql("create or replace view vw_xlsx_summary as SELECT * FROM (SUMMARIZE vw_xlsx);")
         return "View vw_xlsx & vw_xlsx_summary created"
+
+def get_lakehouse_table_path(schema,table_name):
+    """
+    Returns the path to a lakehouse table in the default lakehouse.
+    
+    Parameters:
+    schema (str): the schema of the table
+    table_name (str): the name of the table
+    
+    Returns:
+    str: the path to the table
+    """
+    table_path = f"/lakehouse/default/Tables/{schema}/{table_name}"
+    return table_path
