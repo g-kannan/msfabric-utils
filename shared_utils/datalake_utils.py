@@ -108,7 +108,7 @@ def write_delta_table(arrow_df,schema,table_name,mode="append"):
     storage_options = {"bearer_token": notebookutils.credentials.getToken("storage"), "use_fabric_endpoint": "true"}
     logger.info(f"Write Mode: {mode}, Using table path:{table_path}")
     try:
-        write_deltalake(table_path, arrow_df, mode=mode, engine='rust', storage_options=storage_options)
+        write_deltalake(table_path, arrow_df, mode=mode, storage_options=storage_options)
     except Exception as e:
         logger.exception(
             f"Unexpected error appending data to Delta table: {e}",
