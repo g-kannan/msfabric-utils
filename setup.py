@@ -7,8 +7,8 @@ setup(
     packages=find_packages(),
     install_requires=[
         'duckdb',
-'deltalake',
-'loguru',
-'cuallee'
+        "deltalake>1.1.0",
+        'loguru',
+        'cuallee'
     ]
 )

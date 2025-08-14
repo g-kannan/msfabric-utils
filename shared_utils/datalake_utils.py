@@ -136,7 +136,7 @@ def create_view_lakehouse_files(duckdb_conn,data_format,file_path,all_varchar=Fa
         return "View vw_csv & vw_csv_summary created"
     elif data_format == "xlsx":
         if sheet:
-            duckdb_conn.sql(f"create or replace view vw_xlsx as select *,'{file_path}' as filename,current_timestamp as LOAD_TS,current_timestamp as UPDATE_TS from read_xlsx('{file_path}',all_varchar={all_varchar},sheet={sheet})")
+            duckdb_conn.sql(f"create or replace view vw_xlsx as select *,'{file_path}' as filename,current_timestamp as LOAD_TS,current_timestamp as UPDATE_TS from read_xlsx('{file_path}',all_varchar={all_varchar},sheet='{sheet}')")
         else:
             duckdb_conn.sql(f"create or replace view vw_xlsx as select *,'{file_path}' as filename,current_timestamp as LOAD_TS,current_timestamp as UPDATE_TS from read_xlsx('{file_path}',all_varchar={all_varchar})")
         duckdb_conn.sql("create or replace view vw_xlsx_summary as SELECT * FROM (SUMMARIZE vw_xlsx);")
