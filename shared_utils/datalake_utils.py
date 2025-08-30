@@ -170,3 +170,45 @@ def get_ist_datetime(format_type=None):
         return now_ist.strftime('%H:%M:%S')
     else:  # default
         return now_ist.strftime('%Y-%m-%dT%H:%M:%S')
+
+
+def run_notebook(job_config, params):
+    """Run a notebook safely and return exit_value + outcome."""
+    notebook_to_run = job_config["NOTEBOOK"]
+    logger.info(f"Executing notebook: - {notebook_to_run}")
+    try:
+        exit_value = notebookutils.notebook.run(notebook_to_run, 300, params)
+        outcome = "SUCCESS"
+    except Exception as e:
+        exit_value = str(e)  # capture error details
+        outcome = "FAILURE"
+    return exit_value, outcome
+
+def audit_run(job_config, file_to_process,context, exit_value, outcome):
+    """Append pipeline audit table with pipeline + runtime metadata."""
+    # runtime context values
+    isRunFromPipeline = notebookutils.runtime.context['isForPipeline']
+    executed_by = notebookutils.runtime.context['userName']
+
+    # select required config
+    selected_config = {k: job_config[k] for k in ["DATA_SOURCE", "NOTEBOOK", "TARGET_SCHEMA", "TARGET_OBJECT", "WRITE_MODE"]}
+
+    # build audit dataframe
+    df = pl.DataFrame({
+        "RUN_ID": [context["run_id"]],
+        "TRIGGER_TIME": [context["trigger_time"]],
+        "PIPELINE_NAME": [context["pipeline_name"]],
+        "TRIGGER_TYPE": [context["trigger_type"]],
+        "IS_RUN_FROM_PIPELINE": [isRunFromPipeline],
+        "EXECUTED_BY": [executed_by],
+        "DATA_SOURCE": [selected_config["DATA_SOURCE"]],
+        "NOTEBOOK": [selected_config["NOTEBOOK"]],
+        "TARGET_SCHEMA": [selected_config["TARGET_SCHEMA"]],
+        "TARGET_OBJECT": [selected_config["TARGET_OBJECT"]],
+        "WRITE_MODE": [selected_config["WRITE_MODE"]],
+        "INPUT_FILE": [file_to_process],
+        "EXIT_MESSAGE": [exit_value],
+        "OUTCOME": [outcome]
+    })
+
+    write_delta_table(df,"AUDIT","PIPELINE_RUNS",mode="append")    
