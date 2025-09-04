@@ -211,4 +211,16 @@ def audit_run(job_config, file_to_process,context, exit_value, outcome):
         "OUTCOME": [outcome]
     })
 
-    write_delta_table(df,"AUDIT","PIPELINE_RUNS",mode="append")    
+    write_delta_table(df,"AUDIT","PIPELINE_RUNS",mode="append")
+
+def move_trailing_minus(value: str) -> str:
+    """
+    If the string ends with '-', move it to the front.
+    Example: '286.64-' -> '-286.64'
+    """
+    if value is None:
+        return None
+    value = str(value).strip()
+    if value.endswith('-'):
+        return '-' + value[:-1]
+    return value    
