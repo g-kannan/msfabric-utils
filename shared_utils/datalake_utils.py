@@ -223,4 +223,30 @@ def move_trailing_minus(value: str) -> str:
     value = str(value).strip()
     if value.endswith('-'):
         return '-' + value[:-1]
-    return value    
+    return value
+
+def move_lakehouse_file(src_path: str, dest_dir: str, create_path: bool = False, overwrite: bool = False):
+    """
+    Move a file from src_path to dest_dir using notebookutils.fs.mv.
+    Extracts the filename from src_path.
+
+    Args:
+        src_path (str): Full source path of the file
+        dest_dir (str): Destination directory path (without filename, must end with '/')
+        create_path (bool): Whether to create the destination path if it does not exist
+        overwrite (bool): Whether to overwrite the file if it exists at destination
+    """
+    try:
+        # Extract filename from source path
+        filename = src_path.split("/")[-1]
+
+        # Ensure destination dir ends with '/'
+        if not dest_dir.endswith("/"):
+            dest_dir += "/"
+
+        dest_path = dest_dir + filename
+
+        notebookutils.fs.mv(src_path, dest_path, create_path=create_path, overwrite=overwrite)
+        print(f"File moved successfully:\n   {src_path} -> {dest_path}")
+    except Exception as e:
+        print(f"Failed to move file:\n   {src_path} -> {dest_dir}\nError: {str(e)}")    
