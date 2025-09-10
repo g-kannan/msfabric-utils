@@ -256,6 +256,8 @@ def excel_serial_to_date(n) -> str:
         return None
     try:
         n = int(n)   # force string → int if needed
+        if n < 0:   # invalid Excel date
+            return None
         return (datetime(1899, 12, 30) + timedelta(days=n)).date()
     except Exception:
         return None    
