@@ -1,6 +1,6 @@
 import duckdb
 from deltalake import DeltaTable,write_deltalake
-from datetime import datetime
+from datetime import datetime,timedelta
 import pytz
 from loguru import logger
 import uuid
@@ -249,4 +249,13 @@ def move_lakehouse_file(src_path: str, dest_dir: str, create_path: bool = False,
         notebookutils.fs.mv(src_path, dest_path, create_path=create_path, overwrite=overwrite)
         print(f"File moved successfully:\n   {src_path} -> {dest_path}")
     except Exception as e:
-        print(f"Failed to move file:\n   {src_path} -> {dest_dir}\nError: {str(e)}")    
+        print(f"Failed to move file:\n   {src_path} -> {dest_dir}\nError: {str(e)}")
+
+def excel_serial_to_date(n) -> str:
+    if n is None:
+        return None
+    try:
+        n = int(n)   # force string → int if needed
+        return (datetime(1899, 12, 30) + timedelta(days=n)).date()
+    except Exception:
+        return None    
